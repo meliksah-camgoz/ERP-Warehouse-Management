@@ -1,0 +1,192 @@
+
+<div class="stock-page">
+  <div class="page-header">
+    <div>
+      <h1>Stok Yönetimi</h1>
+      <p>Ürünlerin depo bazlı stok durumlarını takip et.</p>
+    </div>
+    <button class="refresh-button" (click)="loadStocks()">Yenile</button>
+  </div>
+
+  <div class="stock-summary">
+    <div class="summary-card">
+      <span>Stok Kaydı</span>
+      <strong>{{ stocks.length }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>Toplam Stok Miktarı</span>
+      <strong>{{ totalQuantity }}</strong>
+    </div>
+  </div>
+
+
+  <div class="low-stock-alert" *ngIf="lowStockItems.length > 0">
+    <div class="low-stock-title">
+      <strong>⚠️ Düşük Stok Uyarısı</strong>
+      <span>{{ lowStockItems.length }} stok kaydı kontrol edilmeli</span>
+    </div>
+
+    <div class="low-stock-list">
+      <div class="low-stock-item" *ngFor="let stock of lowStockItems">
+        <div>
+          <strong>{{ stock.productName }}</strong>
+          <small>{{ stock.sku }} · {{ stock.warehouseName }}</small>
+        </div>
+        <span>Mevcut: {{ stock.quantity }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="entry-button" (click)="openForm('entry')">+ Stok Girişi</button>
+    <button class="exit-button" (click)="openForm('exit')">− Stok Çıkışı</button>
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="showForm" class="stock-table-card form-card">
+    <div class="table-header">
+      <h2>{{ operation === 'entry' ? 'Stok Girişi' : 'Stok Çıkışı' }}</h2>
+      <button class="cancel-button" (click)="closeForm()">Kapat</button>
+    </div>
+
+    <form (ngSubmit)="saveStock()">
+      <label for="product">Ürün</label>
+      <select id="product" name="productId" [(ngModel)]="form.productId" required>
+        <option [ngValue]="0" disabled>Ürün seç</option>
+        <option *ngFor="let product of products" [ngValue]="product.id">
+          {{ product.name }} ({{ product.sku }})
+        </option>
+      </select>
+
+      <label for="warehouse">Depo</label>
+      <select id="warehouse" name="warehouseId" [(ngModel)]="form.warehouseId" required>
+        <option [ngValue]="0" disabled>Depo seç</option>
+        <option *ngFor="let warehouse of warehouses" [ngValue]="warehouse.id">
+          {{ warehouse.name }}
+        </option>
+      </select>
+
+      <label for="quantity">Miktar</label>
+      <input id="quantity"
+             type="number"
+             name="quantity"
+             [(ngModel)]="form.quantity"
+             min="0.01"
+             step="any"
+             required />
+
+      <div class="form-actions">
+        <button type="button" class="cancel-button" (click)="closeForm()">İptal</button>
+        <button type="submit"
+                [disabled]="isSaving || products.length === 0 || warehouses.length === 0">
+          {{ isSaving ? 'Kaydediliyor...' : 'İşlemi Kaydet' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="stock-table-card">
+    <div class="table-header">
+      <h2>Mevcut Stoklar</h2>
+      <input type="text"
+             placeholder="Ürün, SKU veya depo ara..."
+             [(ngModel)]="searchTerm" />
+    </div>
+
+    <div *ngIf="isLoading" class="info-message">Stoklar yükleniyor...</div>
+
+    <div class="table-wrapper" *ngIf="!isLoading">
+      <table>
+        <thead>
+          <tr>
+            <th>Ürün</th>
+            <th>SKU</th>
+            <th>Depo</th>
+            <th>Mevcut Miktar</th>
+            <th>Son Güncelleme</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let stock of filteredStocks">
+            <td>{{ stock.productName }}</td>
+            <td>{{ stock.sku }}</td>
+            <td>{{ stock.warehouseName }}</td>
+            <td><span class="quantity-badge">{{ stock.quantity }}</span></td>
+            <td>{{ stock.updatedAtUtc | date:'dd.MM.yyyy HH:mm' }}</td>
+          </tr>
+          <tr *ngIf="filteredStocks.length === 0">
+            <td colspan="5" class="empty-message">Gösterilecek stok kaydı bulunamadı.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stock-table-card movement-card">
+    <div class="table-header">
+      <h2>Stok Hareketleri</h2>
+      <button class="refresh-button" type="button" (click)="loadMovements()">
+        Hareketleri Yenile
+      </button>
+    </div>
+
+    <div *ngIf="isLoadingMovements" class="info-message">
+      Stok hareketleri yükleniyor...
+    </div>
+    <div *ngIf="movementError" class="error-message">
+      {{ movementError }}
+    </div>
+
+    <div class="table-wrapper" *ngIf="!isLoadingMovements && !movementError">
+      <table>
+        <thead>
+          <tr>
+            <th>Ürün</th>
+            <th>SKU</th>
+            <th>Depo</th>
+            <th>Hareket Türü</th>
+            <th>Miktar</th>
+            <th>İşlem Tarihi</th>
+            <th>Açıklama</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let movement of movements">
+            <td>{{ movement.productName }}</td>
+            <td>{{ movement.sku }}</td>
+            <td>{{ movement.warehouseName }}</td>
+            <td>
+              <span class="movement-badge"
+                    [class.entry-badge]="movement.movementType.toLowerCase().includes('entry') || movement.movementType.toLowerCase().includes('giriş')"
+                    [class.exit-badge]="movement.movementType.toLowerCase().includes('exit') || movement.movementType.toLowerCase().includes('çıkış')">
+                {{
+                  movement.movementType.toLowerCase().includes('entry')
+                    ? 'Stok Girişi'
+                    : movement.movementType.toLowerCase().includes('exit')
+                      ? 'Stok Çıkışı'
+                      : movement.movementType.toLowerCase().includes('giriş')
+                        ? 'Stok Girişi'
+                        : movement.movementType.toLowerCase().includes('çıkış')
+                          ? 'Stok Çıkışı'
+                          : movement.movementType
+                }}
+              </span>
+            </td>
+            <td>{{ movement.quantity }}</td>
+            <td>{{ movement.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}</td>
+            <td>{{ movement.description || '—' }}</td>
+          </tr>
+          <tr *ngIf="movements.length === 0">
+            <td colspan="7" class="empty-message">Henüz stok hareketi bulunmuyor.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

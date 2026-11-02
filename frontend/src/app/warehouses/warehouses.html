@@ -1,0 +1,216 @@
+
+<div class="page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">ENVANTER YÖNETİMİ</span>
+      <h1>Depo Yönetimi</h1>
+      <p>Depolarını görüntüle, yeni depo ekle ve depo bilgilerini yönet.</p>
+    </div>
+
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <span>＋</span> Yeni Depo
+    </button>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon">▤</div>
+      <div>
+        <span>Toplam Depo</span>
+        <strong>{{ warehouses.length }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon active-icon">✓</div>
+      <div>
+        <span>Aktif Depo</span>
+        <strong>{{ activeCount }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon inactive-icon">Ⅱ</div>
+      <div>
+        <span>Pasif Depo</span>
+        <strong>{{ inactiveCount }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert success" *ngIf="successMessage">
+    <span>✓</span> {{ successMessage }}
+    <button type="button" (click)="successMessage = ''">×</button>
+  </div>
+
+  <div class="alert error" *ngIf="errorMessage">
+    <span>!</span> {{ errorMessage }}
+    <button type="button" (click)="errorMessage = ''">×</button>
+  </div>
+
+  <section class="form-card" *ngIf="showForm">
+    <div class="form-header">
+      <div>
+        <h2>{{ editingId === null ? 'Yeni Depo Oluştur' : 'Depoyu Düzenle' }}</h2>
+        <p>Depo bilgilerini aşağıdan doldur.</p>
+      </div>
+      <button class="close-btn" type="button" (click)="closeForm()">×</button>
+    </div>
+
+    <form (ngSubmit)="saveWarehouse()" #warehouseForm="ngForm">
+      <div class="form-grid">
+        <label>
+          Depo Kodu <span>*</span>
+          <input name="code"
+                 [(ngModel)]="form.code"
+                 required
+                 minlength="2"
+                 maxlength="30"
+                 placeholder="Örn. DEPO-001" />
+        </label>
+
+        <label>
+          Depo Adı <span>*</span>
+          <input name="name"
+                 [(ngModel)]="form.name"
+                 required
+                 minlength="2"
+                 maxlength="150"
+                 placeholder="Örn. Bilgi İşlem Deposu" />
+        </label>
+
+        <label class="full-width">
+          Adres
+          <input name="address"
+                 [(ngModel)]="form.address"
+                 maxlength="300"
+                 placeholder="Depo adresi (isteğe bağlı)" />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeForm()">
+          Vazgeç
+        </button>
+        <button type="submit"
+                class="btn btn-primary"
+                [disabled]="isSaving || warehouseForm.invalid">
+          {{ isSaving ? 'Kaydediliyor...' : editingId === null ? 'Depoyu Kaydet' : 'Değişiklikleri Kaydet' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="table-card">
+    <div class="table-header">
+      <div>
+        <h2>Depolar</h2>
+        <p>Sistemde kayıtlı depo listesi</p>
+      </div>
+
+      <button class="btn btn-secondary btn-refresh" (click)="loadWarehouses()">
+        ↻ Yenile
+      </button>
+    </div>
+
+    <div class="filters">
+      <div class="search-box">
+        <span>⌕</span>
+        <input type="text"
+               name="search"
+               [(ngModel)]="searchTerm"
+               placeholder="Depo kodu, adı veya adresinde ara..." />
+      </div>
+
+      <select name="statusFilter" [(ngModel)]="statusFilter">
+        <option value="all">Tüm Depolar</option>
+        <option value="active">Aktif Depolar</option>
+        <option value="inactive">Pasif Depolar</option>
+      </select>
+    </div>
+
+    <div class="loading" *ngIf="isLoading">
+      <span class="spinner"></span>
+      Depolar yükleniyor...
+    </div>
+
+    <div class="table-wrap" *ngIf="!isLoading">
+      <table>
+        <thead>
+          <tr>
+            <th>DEPO</th>
+            <th>DEPO KODU</th>
+            <th>ADRES</th>
+            <th>DURUM</th>
+            <th>OLUŞTURULMA TARİHİ</th>
+            <th class="actions-heading">İŞLEMLER</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let warehouse of filteredWarehouses">
+            <td>
+              <div class="warehouse-name">
+                <div class="warehouse-icon">▤</div>
+                <strong>{{ warehouse.name }}</strong>
+              </div>
+            </td>
+            <td><span class="code">{{ warehouse.code }}</span></td>
+            <td class="address">{{ warehouse.address || '—' }}</td>
+            <td>
+              <span class="status"
+                    [class.status-active]="warehouse.isActive"
+                    [class.status-inactive]="!warehouse.isActive">
+                <span class="status-dot"></span>
+                {{ warehouse.isActive ? 'Aktif' : 'Pasif' }}
+              </span>
+            </td>
+            <td class="date">
+              {{ warehouse.createdAtUtc | date:'dd.MM.yyyy' }}
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="action-btn edit-btn"
+                        type="button"
+                        (click)="openEditForm(warehouse)"
+                        title="Depoyu düzenle">
+                  Düzenle
+                </button>
+                <button class="action-btn"
+                        type="button"
+                        [class.activate-btn]="!warehouse.isActive"
+                        [class.deactivate-btn]="warehouse.isActive"
+                        (click)="toggleStatus(warehouse)">
+                  {{ warehouse.isActive ? 'Pasifleştir' : 'Aktifleştir' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredWarehouses.length === 0">
+            <td colspan="6" class="empty-state">
+              <div class="empty-icon">▤</div>
+              <strong>{{ warehouses.length === 0 ? 'Henüz depo eklenmemiş' : 'Sonuç bulunamadı' }}</strong>
+              <p>
+                {{
+ warehouses.length === 0
+                  ? 'İlk deponu oluşturmak için Yeni Depo butonunu kullan.'
+                  : 'Arama veya durum filtresini değiştirmeyi dene.'
+                }}
+              </p>
+              <button *ngIf="warehouses.length === 0"
+                      class="btn btn-primary"
+                      (click)="openCreateForm()">
+                ＋ Yeni Depo
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="table-footer" *ngIf="!isLoading">
+      <span>{{ filteredWarehouses.length }} depo gösteriliyor</span>
+    </footer>
+  </section>
+</div>

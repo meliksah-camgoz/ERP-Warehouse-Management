@@ -1,0 +1,94 @@
+
+<div class="login-page">
+  <section class="brand-panel">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <span>MiniERP</span>
+    </div>
+
+    <div class="brand-content">
+      <span class="eyebrow">KURUMSAL YÖNETİM SİSTEMİ</span>
+      <h1>İşletmenizi tek bir merkezden yönetin.</h1>
+      <p>
+        Stok, depo ve bilgi işlem envanterinizi kolayca yönetin.
+        İş süreçlerinizi tek bir platformda birleştirin.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <span>Merkezi envanter yönetimi</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <span>Excel ile toplu veri aktarımı</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">✓</span>
+          <span>Güvenli ve düzenli iş süreçleri</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-footer">
+      MiniERP · Kurumsal Kaynak Planlama
+    </div>
+  </section>
+
+  <section class="form-panel">
+    <div class="login-form-container">
+      <div class="mobile-brand">
+        <div class="brand-logo">M</div>
+        <span>MiniERP</span>
+      </div>
+
+      <div class="form-heading">
+        <span class="welcome-label">YÖNETİM PANELİ</span>
+        <h2>Hoş geldiniz</h2>
+        <p>Devam etmek için hesabınıza giriş yapın.</p>
+      </div>
+
+      <form (submit)="login($event)">
+        <div class="form-group">
+          <label for="username">Kullanıcı adı</label>
+          <input id="username"
+                 name="username"
+                 [(ngModel)]="username"
+                 type="text"
+                 placeholder="Kullanıcı adınızı girin"
+                 autocomplete="username"
+                 required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Şifre</label>
+          <input id="password"
+                 name="password"
+                 [(ngModel)]="password"
+                 type="password"
+                 placeholder="Şifrenizi girin"
+                 autocomplete="current-password"
+                 required />
+        </div>
+
+        @if (errorMessage) {
+        <div class="error-message">{{ errorMessage }}</div>
+        }
+
+        <button type="submit" [disabled]="isLoading">
+          <span>{{ isLoading ? 'Kontrol ediliyor...' : 'Giriş yap' }}</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <div class="security-note">
+        <span aria-hidden="true">🔒</span>
+        <span>Bu alan yalnızca yetkili kullanıcılar içindir.</span>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      © 2026 MiniERP · Tüm hakları saklıdır.
+    </div>
+  </section>
+</div>

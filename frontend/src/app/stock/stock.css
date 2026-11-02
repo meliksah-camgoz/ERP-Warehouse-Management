@@ -1,0 +1,298 @@
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.stock-page {
+  padding: 28px;
+  color: #1f2937;
+}
+
+.page-header,
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+  .page-header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .page-header p {
+    margin: 0;
+    color: #64748b;
+  }
+
+.refresh-button,
+.entry-button,
+.exit-button,
+.form-actions button,
+.cancel-button {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.refresh-button {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.stock-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.summary-card,
+.stock-table-card {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 5%);
+}
+
+  .summary-card span {
+    display: block;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .summary-card strong {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.entry-button,
+.form-actions button[type="submit"] {
+  background: #047857;
+  color: #fff;
+}
+
+.exit-button {
+  background: #b45309;
+  color: #fff;
+}
+
+.success-message,
+.error-message {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.form-card {
+  margin-bottom: 22px;
+}
+
+  .form-card form {
+    display: grid;
+    gap: 10px;
+    max-width: 560px;
+  }
+
+  .form-card label {
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .form-card select,
+  .form-card input,
+  .table-header input {
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2937;
+  }
+
+.table-header {
+  margin-bottom: 20px;
+}
+
+  .table-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .table-header input {
+    width: min(340px, 100%);
+  }
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.stock-page table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.stock-page th,
+.stock-page td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.stock-page th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quantity-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.info-message,
+.empty-message {
+  padding: 24px;
+  color: #64748b;
+  text-align: center;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cancel-button {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .stock-page {
+    padding: 16px;
+  }
+
+  .stock-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header,
+  .table-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+.movement-card {
+  margin-top: 22px;
+}
+
+.movement-badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.entry-badge {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.exit-badge {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.low-stock-alert {
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.low-stock-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.low-stock-title strong {
+  font-size: 16px;
+}
+
+.low-stock-title span,
+.low-stock-item span {
+  font-size: 13px;
+}
+
+.low-stock-list {
+  display: grid;
+  gap: 10px;
+}
+
+.low-stock-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.low-stock-item small {
+  display: block;
+  margin-top: 5px;
+  color: #78716c;
+}

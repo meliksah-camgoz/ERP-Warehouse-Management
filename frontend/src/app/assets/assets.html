@@ -1,0 +1,284 @@
+
+<div class="assets-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">BİLGİ İŞLEM YÖNETİMİ</span>
+      <h1>Bilgi İşlem Envanteri</h1>
+      <p>Bilgisayar, monitör, yazıcı ve diğer demirbaşlarını tek yerden yönet.</p>
+    </div>
+
+    <button class="primary-btn" (click)="openForm()">＋ Yeni Demirbaş</button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">▤</div>
+      <div><span>Toplam Demirbaş</span><strong>{{ totalCount }}</strong></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">✓</div>
+      <div><span>Zimmetli</span><strong>{{ assignedCount }}</strong></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">▣</div>
+      <div><span>Kullanılabilir</span><strong>{{ availableCount }}</strong></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">⚙</div>
+      <div><span>Bakım / Arıza</span><strong>{{ maintenanceCount }}</strong></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span>⌕</span>
+      <input type="text"
+             placeholder="Demirbaş, marka, seri no veya personel ara..."
+             [(ngModel)]="searchText"
+             (ngModelChange)="applyFilters()" />
+    </div>
+
+    <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+      <option value="Tümü">Tüm durumlar</option>
+      <option value="Kullanımda">Kullanımda</option>
+      <option value="Stokta">Stokta</option>
+      <option value="Kullanılabilir">Kullanılabilir</option>
+      <option value="Boşta">Boşta</option>
+      <option value="Bakımda">Bakımda</option>
+      <option value="Serviste">Serviste</option>
+      <option value="Arızalı">Arızalı</option>
+    </select>
+  </div>
+
+  <div class="import-panel">
+    <div>
+      <strong>Excel ile toplu kayıt</strong>
+      <p>Envanter listesini .xlsx dosyasından içe aktar.</p>
+    </div>
+    <div class="import-actions">
+      <input type="file" accept=".xlsx" (change)="onFileSelected($event)" />
+      <button class="secondary-btn" (click)="importExcel()">Excel'i İçe Aktar</button>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+  <div class="alert error">{{ errorMessage }}</div>
+  }
+
+  @if (successMessage) {
+  <div class="alert success">{{ successMessage }}</div>
+  }
+
+  <div class="table-card">
+    <div class="table-heading">
+      <div>
+        <h2>Demirbaş Listesi</h2>
+        <span>{{ filteredAssets.length }} kayıt gösteriliyor</span>
+      </div>
+      <button class="refresh-btn" (click)="loadAssets()">↻ Yenile</button>
+    </div>
+
+    @if (loading) {
+    <div class="empty-state">Envanter kayıtları yükleniyor...</div>
+    } @else if (filteredAssets.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">▤</div>
+      <strong>Henüz kayıt bulunamadı</strong>
+      <p>Yeni demirbaş ekleyebilir veya arama filtrelerini değiştirebilirsin.</p>
+      <button class="primary-btn" (click)="openForm()">İlk Demirbaşı Ekle</button>
+    </div>
+    } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>DEMİRBAŞ</th>
+            <th>CİHAZ TÜRÜ</th>
+            <th>SERİ NUMARASI</th>
+            <th>ZİMMETLİ KİŞİ</th>
+            <th>DEPARTMAN / KONUM</th>
+            <th>DURUM</th>
+            <th>GARANTİ BİTİŞİ</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (asset of filteredAssets; track asset.id) {
+          <tr>
+            <td>
+              <div class="asset-name">{{ asset.brand }} {{ asset.model }}</div>
+              <div class="muted">{{ asset.assetNumber }}</div>
+            </td>
+            <td>{{ asset.assetType }}</td>
+            <td>{{ asset.serialNumber || '—' }}</td>
+            <td>{{ asset.assignedTo || 'Zimmetli değil' }}</td>
+            <td>
+              <div>{{ asset.department || '—' }}</div>
+              <div class="muted">{{ asset.location || '' }}</div>
+            </td>
+            <td>
+              <span class="status-pill"
+                    [class.status-green]="['Kullanımda', 'Stokta', 'Kullanılabilir'].includes(asset.status)"
+                    [class.status-orange]="['Bakımda', 'Serviste'].includes(asset.status)"
+                    [class.status-red]="asset.status === 'Arızalı'">
+                {{ asset.status }}
+              </span>
+            </td>
+            <td>{{ asset.warrantyEndDate ? (asset.warrantyEndDate | date:'dd.MM.yyyy') : '—' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+
+  @if (showForm) {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">ENVANTER KAYDI</span>
+          <h2>Yeni Demirbaş Ekle</h2>
+        </div>
+        <button class="close-btn" type="button" (click)="closeForm()">×</button>
+      </div>
+
+      <form (ngSubmit)="saveAsset()">
+        <div class="form-grid">
+          <label>
+            Demirbaş Numarası *
+            <input name="assetNumber" [(ngModel)]="form.assetNumber" required maxlength="50"
+                   placeholder="Örn. BT-0001" />
+          </label>
+
+
+          <label>
+            Ürün *
+            <select name="selectedProductId"
+                    [(ngModel)]="selectedProductId"
+                    required>
+              <option [ngValue]="null">Ürün seç</option>
+              @for (product of products; track product.id) {
+              <option [ngValue]="product.id">
+                {{ product.sku }} — {{ product.name }}
+              </option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Depo *
+            <select name="selectedWarehouseId"
+                    [(ngModel)]="selectedWarehouseId"
+                    required>
+              <option [ngValue]="null">Depo seç</option>
+              @for (warehouse of warehouses; track warehouse.id) {
+              <option [ngValue]="warehouse.id">
+                {{ warehouse.code }} — {{ warehouse.name }}
+              </option>
+              }
+            </select>
+          </label>
+
+          <div class="stock-info full-width">
+            <span>Seçilen depodaki mevcut stok</span>
+            <strong>{{ selectedStockQuantity }}</strong>
+            @if (selectedProductId !== null && selectedWarehouseId !== null) {
+            @if (selectedStockQuantity > 0) {
+            <span class="stock-available">Stok mevcut</span>
+            } @else {
+            <span class="stock-empty">Bu depoda stok bulunmuyor</span>
+            }
+            }
+          </div>
+
+          <label>
+            Cihaz Türü *
+            <select name="assetType" [(ngModel)]="form.assetType" required>
+              <option value="">Cihaz türü seç</option>
+              <option>Bilgisayar</option>
+              <option>Dizüstü Bilgisayar</option>
+              <option>Monitör</option>
+              <option>Yazıcı</option>
+              <option>Telefon</option>
+              <option>Tablet</option>
+              <option>Sunucu</option>
+              <option>Ağ Cihazı</option>
+              <option>Diğer</option>
+            </select>
+          </label>
+
+          <label>
+            Marka *
+            <input name="brand" [(ngModel)]="form.brand" required maxlength="100"
+                   placeholder="Örn. Lenovo" />
+          </label>
+
+          <label>
+            Model *
+            <input name="model" [(ngModel)]="form.model" required maxlength="150"
+                   placeholder="Örn. ThinkPad E14" />
+          </label>
+
+          <label>
+            Seri Numarası
+            <input name="serialNumber" [(ngModel)]="form.serialNumber" maxlength="100" />
+          </label>
+
+          <label>
+            Durum *
+            <select name="status" [(ngModel)]="form.status" required>
+              <option value="Kullanımda">Kullanımda</option>
+              <option value="Stokta">Stokta</option>
+              <option value="Kullanılabilir">Kullanılabilir</option>
+              <option value="Bakımda">Bakımda</option>
+              <option value="Serviste">Serviste</option>
+              <option value="Arızalı">Arızalı</option>
+            </select>
+          </label>
+
+          <label>
+            Zimmetli Personel
+            <input name="assignedTo" [(ngModel)]="form.assignedTo" maxlength="150"
+                   placeholder="Personel adı soyadı" />
+          </label>
+
+          <label>
+            Departman
+            <input name="department" [(ngModel)]="form.department" maxlength="100"
+                   placeholder="Örn. Bilgi İşlem" />
+          </label>
+
+          <label>
+            Konum
+            <input name="location" [(ngModel)]="form.location" maxlength="200"
+                   placeholder="Örn. 2. kat, oda 204" />
+          </label>
+
+          <label>
+            Garanti Bitiş Tarihi
+            <input type="date" name="warrantyEndDate" [(ngModel)]="form.warrantyEndDate" />
+          </label>
+
+          <label class="full-width">
+            Açıklama
+            <textarea name="description" [(ngModel)]="form.description" rows="3" maxlength="1000"
+                      placeholder="Cihaz hakkında ek bilgiler..."></textarea>
+          </label>
+        </div>
+
+        @if (errorMessage) {
+        <div class="alert error">{{ errorMessage }}</div>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" (click)="closeForm()">Vazgeç</button>
+          <button type="submit" class="primary-btn" [disabled]="saving">
+            {{ saving ? 'Kaydediliyor...' : 'Demirbaşı Kaydet' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>

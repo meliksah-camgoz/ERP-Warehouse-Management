@@ -1,0 +1,162 @@
+
+<div class="categories-page">
+  <div class="page-header">
+    <div>
+      <h1>Kategori Yönetimi</h1>
+      <p>Ürünlerini kategorilere göre düzenle ve yönet.</p>
+    </div>
+
+    <button class="btn-primary" (click)="openCreateForm()">
+      + Yeni Kategori
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Toplam Kategori</span>
+      <strong>{{ categories.length }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Aktif Kategori</span>
+      <strong>{{ activeCount }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Pasif Kategori</span>
+      <strong>{{ inactiveCount }}</strong>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="toolbar">
+    <input type="text"
+           [(ngModel)]="searchTerm"
+           placeholder="Kategori adı veya açıklama ara..." />
+
+    <select [(ngModel)]="statusFilter">
+      <option value="all">Tüm kategoriler</option>
+      <option value="active">Aktif kategoriler</option>
+      <option value="inactive">Pasif kategoriler</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Kategori</th>
+          <th>Açıklama</th>
+          <th>Oluşturulma Tarihi</th>
+          <th>Durum</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngIf="isLoading">
+          <td colspan="5" class="empty-state">Kategoriler yükleniyor...</td>
+        </tr>
+
+        <tr *ngIf="!isLoading && filteredCategories.length === 0">
+          <td colspan="5" class="empty-state">
+            Kategori bulunamadı.
+          </td>
+        </tr>
+
+        <tr *ngFor="let category of filteredCategories">
+          <td>
+            <div class="category-name">{{ category.name }}</div>
+            <small>ID: {{ category.id }}</small>
+          </td>
+
+          <td>{{ category.description || '—' }}</td>
+
+          <td>
+            {{ category.createdAtUtc | date:'dd.MM.yyyy' }}
+          </td>
+
+          <td>
+            <span class="status-badge"
+                  [class.active]="category.isActive"
+                  [class.inactive]="!category.isActive">
+              {{ category.isActive ? 'Aktif' : 'Pasif' }}
+            </span>
+          </td>
+
+          <td>
+            <div class="row-actions">
+              <button class="btn-secondary"
+                      (click)="openEditForm(category)">
+                Düzenle
+              </button>
+
+              <button class="btn-status"
+                      [class.activate]="!category.isActive"
+                      (click)="toggleStatus(category)">
+                {{ category.isActive ? 'Pasife Al' : 'Aktifleştir' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showForm">
+    <div class="category-modal">
+      <div class="modal-header">
+        <div>
+          <h2>{{ editingId ? 'Kategori Düzenle' : 'Yeni Kategori' }}</h2>
+          <p>Kategori bilgilerini gir.</p>
+        </div>
+
+        <button class="close-button" (click)="closeForm()">×</button>
+      </div>
+
+      <form (ngSubmit)="saveCategory()">
+        <label for="categoryName">Kategori adı *</label>
+        <input id="categoryName"
+               name="name"
+               [(ngModel)]="form.name"
+               required
+               minlength="2"
+               maxlength="100"
+               placeholder="Örn. Bilgisayar Ekipmanları" />
+
+        <label for="categoryDescription">Açıklama</label>
+        <textarea id="categoryDescription"
+                  name="description"
+                  [(ngModel)]="form.description"
+                  maxlength="500"
+                  rows="4"
+                  placeholder="Kategori hakkında kısa bir açıklama..."></textarea>
+
+        <div *ngIf="errorMessage" class="alert error">
+          {{ errorMessage }}
+        </div>
+
+        <div class="modal-actions">
+          <button type="button"
+                  class="btn-secondary"
+                  (click)="closeForm()">
+            Vazgeç
+          </button>
+
+          <button type="submit"
+                  class="btn-primary"
+                  [disabled]="isSaving">
+            {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

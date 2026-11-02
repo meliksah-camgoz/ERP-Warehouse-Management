@@ -1,0 +1,68 @@
+
+# ==============================
+# .NET / ASP.NET Core
+# ==============================
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Publish outputs
+publish/
+artifacts/
+
+# ==============================
+# Angular / Node.js
+# ==============================
+node_modules/
+dist/
+.angular/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ==============================
+# Environment / Secrets
+# ==============================
+.env
+.env.*
+!.env.example
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json.example
+secrets.json
+
+# ==============================
+# Database / Local files
+# ==============================
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+
+# ==============================
+# OS generated files
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# IDE
+# ==============================
+.idea/
+*.swp
+*.tmp
