@@ -73,13 +73,40 @@ public class ProductRepository : IProductRepository
         await _context.Products.AddAsync(product, cancellationToken);
     }
 
-    public Task DeleteAsync(
+
+    public async Task DeleteAsync(
         Product product,
         CancellationToken cancellationToken = default)
     {
-        _context.Products.Remove(product);
-        return Task.CompletedTask;
+        await using var transaction =
+            await _context.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            // Önce ürünün stok hareketlerini sil.
+            await _context.StockMovements
+                .Where(x => x.ProductId == product.Id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            // Ardından depo stok bakiyelerini sil.
+            await _context.StockBalances
+                .Where(x => x.ProductId == product.Id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            // Son olarak ürünü tamamen sil.
+            _context.Products.Remove(product);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
+
 
 
     public Task<bool> HasStockBalancesAsync(

@@ -345,6 +345,22 @@ interface ProductForm {
                         </button>
 
                         <button
+                         class="status-toggle-button"
+                         [class.activate-button]="product.isActive === false"
+                         [class.deactivate-button]="product.isActive !== false"
+                         (click)="toggleProductStatus(product)"
+                         [disabled]="saving || deletingId !== null || statusChangingId !== null"
+                        >
+                          {{
+                           statusChangingId === product.id
+                             ? 'İşleniyor...'
+                             : product.isActive === false
+                               ? 'Aktif Et'
+                               : 'Pasife Al'
+                          }}
+                        </button>
+
+                        <button
                           class="delete-button"
                           (click)="deleteProduct(product)"
                           [disabled]="saving || deletingId !== null"
@@ -645,6 +661,34 @@ interface ProductForm {
       background: #fee2e2;
     }
 
+    .status-toggle-button {
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .activate-button {
+      border: 1px solid #b7e4c7;
+      background: #ecfdf3;
+      color: #16834a;
+    }
+
+    .activate-button:hover:not(:disabled) {
+      background: #dcfce7;
+    }
+
+    .deactivate-button {
+      border: 1px solid #f5d6a5;
+      background: #fff8eb;
+      color: #a16207;
+    }
+
+    .deactivate-button:hover:not(:disabled) {
+      background: #fef3c7;
+    }
+
     .message {
       padding: 35px 20px;
       color: #8490a0;
@@ -725,6 +769,7 @@ export class Products implements OnInit {
   loading = true;
   saving = false;
   deletingId: number | null = null;
+  statusChangingId: number | null = null;
 
   errorMessage = '';
   successMessage = '';
@@ -975,6 +1020,56 @@ export class Products implements OnInit {
     });
   }
 
+  toggleProductStatus(product: Product): void {
+    if (
+      this.statusChangingId !== null ||
+      this.deletingId !== null ||
+      this.saving
+    ) {
+      return;
+    }
+
+    const newStatus = !product.isActive;
+    const action = newStatus ? 'aktifleştirmek' : 'pasife almak';
+
+    const confirmed = window.confirm(
+      `"${product.name}" ürününü ${action} istiyor musunuz?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.statusChangingId = product.id;
+    this.clearMessages();
+
+    this.http.patch(
+      `${this.apiUrl}/products/${product.id}/status`,
+      newStatus
+    ).subscribe({
+      next: () => {
+        product.isActive = newStatus;
+        this.statusChangingId = null;
+
+        this.successMessage = newStatus
+          ? `"${product.name}" yeniden aktifleştirildi.`
+          : `"${product.name}" pasife alındı. Stok girişi engellendi.`;
+
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Ürün durumu değiştirilemedi:', error);
+
+        this.errorMessage =
+          error.error?.message ??
+          `Ürün durumu değiştirilemedi (HTTP ${error.status}).`;
+
+        this.statusChangingId = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   deleteProduct(product: Product): void {
     if (this.deletingId !== null || this.saving) {
       return;
@@ -982,7 +1077,7 @@ export class Products implements OnInit {
 
     const confirmed = window.confirm(
       `"${product.name}" ürününü kalıcı olarak silmek istiyor musunuz?\n\n` +
-      'Bu işlem geri alınamaz. Stok bakiyesi veya stok hareketi bulunan ürünler silinemez.'
+      'Bu işlem geri alınamaz. Ürüne bağlı stok bakiyeleri ve stok hareketleri de silinir.'
     );
 
     if (!confirmed) {

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DashboardService } from './services/dashboard.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +28,29 @@ import { DashboardService } from './services/dashboard.service';
           </div>
           <div class="welcome-decoration">M</div>
         </section>
+
+
+        <section class="report-card">
+          <div class="report-info">
+            <div class="report-icon">📊</div>
+            <div class="report-text">
+              <h3>Kurumsal Raporlama</h3>
+              <p>Ürün, stok, depo hareketleri ve demirbaş raporlarını tek bir Excel dosyasında indirin.</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="report-button"
+            (click)="exportExcelReport()"
+            [disabled]="exportingReport">
+            {{ exportingReport ? 'Rapor hazırlanıyor...' : '↓ Excel Raporunu İndir' }}
+          </button>
+        </section>
+
+        @if (reportError) {
+          <p class="report-error">{{ reportError }}</p>
+        }
 
         <section class="section-heading">
           <div>
@@ -348,6 +372,79 @@ import { DashboardService } from './services/dashboard.service';
       user-select: none;
     }
 
+
+    .report-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 18px;
+      padding: 20px 24px;
+      border: 1px solid #e3eaf0;
+      border-radius: 13px;
+      background: #fff;
+      box-shadow: 0 3px 12px rgb(27 45 70 / 3%);
+    }
+
+    .report-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 0;
+    }
+
+    .report-icon {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: #e1f6e9;
+      font-size: 22px;
+    }
+
+    .report-text h3 {
+      margin: 0;
+      color: #202b3c;
+      font-size: 14px;
+    }
+
+    .report-text p {
+      margin: 6px 0 0;
+      color: #8792a2;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .report-button {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 9px;
+      background: #24784d;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+
+    .report-button:hover:not(:disabled) {
+      background: #195f3b;
+    }
+
+    .report-button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .report-error {
+      margin: 10px 0 0;
+      color: #dc4545;
+      font-size: 12px;
+    }
+
     .section-heading {
       display: flex;
       align-items: center;
@@ -532,6 +629,8 @@ import { DashboardService } from './services/dashboard.service';
       .welcome h2 { font-size: 21px; }
       .welcome p { max-width: 240px; line-height: 1.6; }
       .welcome-decoration { right: -10px; font-size: 145px; }
+      .report-card { align-items: stretch; flex-direction: column; padding: 18px; }
+      .report-button { width: 100%; }
       .stats-grid { gap: 10px; }
       .stat-card { padding: 14px; }
       .stat-label { font-size: 8px; }
@@ -567,6 +666,45 @@ export class Dashboard implements OnInit {
         console.error('Dashboard API hatası:', error);
         this.loadError = 'Dashboard verileri yüklenemedi.';
         this.loading = false;
+      }
+    });
+  }
+
+  private http = inject(HttpClient);
+
+  exportingReport = false;
+  reportError = '';
+
+  exportExcelReport(): void {
+    this.exportingReport = true;
+    this.reportError = '';
+
+    this.http.get(
+      'http://localhost:5252/api/reports/export-excel',
+      {
+        responseType: 'blob'
+      }
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `MiniERP_Kurumsal_Rapor_${new Date()
+          .toISOString()
+          .slice(0, 10)}.xlsx`;
+
+        link.click();
+
+        window.URL.revokeObjectURL(url);
+        this.exportingReport = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Excel raporu indirilemedi:', error);
+        this.reportError = 'Rapor oluşturulamadı. API bağlantısını kontrol edin.';
+        this.exportingReport = false;
+        this.cdr.detectChanges();
       }
     });
   }

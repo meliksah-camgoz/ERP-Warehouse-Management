@@ -96,6 +96,7 @@ public class ProductService : IProductService
         return true;
     }
 
+
     public async Task<bool> DeleteAsync(
         int id,
         CancellationToken cancellationToken = default)
@@ -106,19 +107,11 @@ public class ProductService : IProductService
         if (product is null)
             return false;
 
-        if (await _repository.HasStockBalancesAsync(
-                id, cancellationToken))
-        {
-            throw new InvalidOperationException(
-                "Stok miktarı sıfırdan büyük olan ürün silinemez.");
-        }
-
-        product.IsActive = false;
-
-        await _repository.SaveChangesAsync(cancellationToken);
+        await _repository.DeleteAsync(product, cancellationToken);
 
         return true;
     }
+
 
     private static string NormalizeSku(string sku) =>
         sku.Trim().ToUpperInvariant();
@@ -144,5 +137,23 @@ public class ProductService : IProductService
             IsActive = product.IsActive,
             CreatedAtUtc = product.CreatedAtUtc
         };
+    }
+
+    public async Task<bool> SetActiveAsync(
+        int id,
+        bool isActive,
+      CancellationToken cancellationToken = default)
+    {
+        var product = await _repository.GetByIdAsync(
+            id, cancellationToken);
+
+        if (product is null)
+            return false;
+
+        product.IsActive = isActive;
+
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 }

@@ -91,4 +91,19 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/status")]
+    public async Task<IActionResult> SetStatus(
+    int id,
+    [FromBody] bool isActive,
+    CancellationToken cancellationToken)
+    {
+        var result = await _service.SetActiveAsync(
+            id, isActive, cancellationToken);
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
+    }
+
 }

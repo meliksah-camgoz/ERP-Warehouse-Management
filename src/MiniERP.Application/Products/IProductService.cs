@@ -24,4 +24,9 @@ public interface IProductService
     Task<bool> DeleteAsync(
         int id,
         CancellationToken cancellationToken = default);
+
+    Task<bool> SetActiveAsync(
+        int id,
+        bool isActive,
+        CancellationToken cancellationToken = default);
 }
