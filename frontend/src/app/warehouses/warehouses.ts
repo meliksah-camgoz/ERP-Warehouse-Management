@@ -1,4 +1,4 @@
-
+﻿
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ interface WarehouseForm {
 export class Warehouses implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
-  private apiUrl = 'http://localhost:5252/api/warehouses';
+  private apiUrl = '/api/warehouses';
 
   warehouses: Warehouse[] = [];
   searchTerm = '';
@@ -94,7 +94,7 @@ export class Warehouses implements OnInit {
       error: (error) => {
         this.errorMessage =
           error.error?.message ??
-          'Depolar yüklenemedi. API servisinin çalıştığını kontrol et.';
+          'Depolar yÃ¼klenemedi. API servisinin Ã§alÄ±ÅŸtÄ±ÄŸÄ±nÄ± kontrol et.';
         this.isLoading = false;
         this.cdr.detectChanges();
       }
@@ -134,12 +134,12 @@ export class Warehouses implements OnInit {
     const name = this.form.name.trim();
 
     if (code.length < 2 || name.length < 2) {
-      this.errorMessage = 'Depo kodu ve adı en az 2 karakter olmalıdır.';
+      this.errorMessage = 'Depo kodu ve adÄ± en az 2 karakter olmalÄ±dÄ±r.';
       return;
     }
 
     if (code.length > 30 || name.length > 150) {
-      this.errorMessage = 'Depo kodu en fazla 30, adı en fazla 150 karakter olabilir.';
+      this.errorMessage = 'Depo kodu en fazla 30, adÄ± en fazla 150 karakter olabilir.';
       return;
     }
 
@@ -167,17 +167,17 @@ export class Warehouses implements OnInit {
         this.isSaving = false;
         this.closeForm();
         this.successMessage = wasEditing
-          ? 'Depo bilgileri güncellendi.'
-          : 'Depo başarıyla eklendi.';
+          ? 'Depo bilgileri gÃ¼ncellendi.'
+          : 'Depo baÅŸarÄ±yla eklendi.';
 
-        // editingId closeForm içinde sıfırlandığı için mesajı
-        // bir sonraki adımda işlem öncesinde belirliyoruz.
+        // editingId closeForm iÃ§inde sÄ±fÄ±rlandÄ±ÄŸÄ± iÃ§in mesajÄ±
+        // bir sonraki adÄ±mda iÅŸlem Ã¶ncesinde belirliyoruz.
         this.loadWarehouses();
       },
       error: (error) => {
         this.errorMessage =
           error.error?.message ??
-          'İşlem başarısız oldu. Bilgileri kontrol edip tekrar dene.';
+          'Ä°ÅŸlem baÅŸarÄ±sÄ±z oldu. Bilgileri kontrol edip tekrar dene.';
         this.isSaving = false;
       }
     });
@@ -188,7 +188,7 @@ export class Warehouses implements OnInit {
     const newStatus = !warehouse.isActive;
     const action = newStatus ? 'aktif' : 'pasif';
 
-    // Aktif etme işleminde doğrudan onay iste.
+    // Aktif etme iÅŸleminde doÄŸrudan onay iste.
     if (newStatus) {
       if (!confirm(`"${warehouse.name}" deposunu aktif yapmak istiyor musun?`)) {
         return;
@@ -198,8 +198,8 @@ export class Warehouses implements OnInit {
       return;
     }
 
-    // Pasife almadan önce depodaki mevcut stokları kontrol et.
-    this.http.get<any[]>('http://localhost:5252/api/stock-balances')
+    // Pasife almadan Ã¶nce depodaki mevcut stoklarÄ± kontrol et.
+    this.http.get<any[]>('/api/stock-balances')
       .subscribe({
         next: (stocks) => {
           const warehouseStocks = stocks.filter(
@@ -218,9 +218,9 @@ export class Warehouses implements OnInit {
 
           if (warehouseStocks.length > 0) {
             message +=
-              `\n\nDikkat! Bu depoda ${warehouseStocks.length} farklı stok kaydı` +
+              `\n\nDikkat! Bu depoda ${warehouseStocks.length} farklÄ± stok kaydÄ±` +
               ` ve toplam ${totalQuantity} birim stok bulunuyor.` +
-              '\nMevcut stoklar silinmeyecek ancak depo pasifken stok işlemi yapılamayacak.';
+              '\nMevcut stoklar silinmeyecek ancak depo pasifken stok iÅŸlemi yapÄ±lamayacak.';
           }
 
           if (!confirm(message)) {
@@ -231,7 +231,7 @@ export class Warehouses implements OnInit {
         },
         error: () => {
           this.errorMessage =
-            'Depodaki stoklar kontrol edilemedi. Depo pasife alınmadı.';
+            'Depodaki stoklar kontrol edilemedi. Depo pasife alÄ±nmadÄ±.';
         }
       });
   }
@@ -250,13 +250,14 @@ export class Warehouses implements OnInit {
     ).subscribe({
       next: () => {
         this.successMessage =
-          `${warehouse.name} deposu ${action} yapıldı.`;
+          `${warehouse.name} deposu ${action} yapÄ±ldÄ±.`;
         this.loadWarehouses();
       },
       error: (error) => {
         this.errorMessage =
-          error.error?.message ?? 'Depo durumu değiştirilemedi.';
+          error.error?.message ?? 'Depo durumu deÄŸiÅŸtirilemedi.';
       }
     });
   } 
 }
+

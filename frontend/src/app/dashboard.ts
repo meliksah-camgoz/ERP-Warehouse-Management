@@ -680,7 +680,7 @@ export class Dashboard implements OnInit {
     this.reportError = '';
 
     this.http.get(
-      'http://localhost:5252/api/reports/export-excel',
+      '/api/reports/export-excel',
       {
         responseType: 'blob'
       }
@@ -710,3 +710,4 @@ export class Dashboard implements OnInit {
   }
 
 }
+

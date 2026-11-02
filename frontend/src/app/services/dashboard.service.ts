@@ -1,3 +1,4 @@
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, map, retry, timer } from 'rxjs';
@@ -7,7 +8,9 @@ import { forkJoin, map, retry, timer } from 'rxjs';
 })
 export class DashboardService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5252/api';
+
+  // Aynı sunucu üzerinden API bağlantısı
+  private apiUrl = '/api';
 
   getSummary() {
     return forkJoin({
@@ -21,8 +24,11 @@ export class DashboardService {
         products: data.products.length,
         warehouses: data.warehouses.length,
         stockBalances: data.stockBalances.length
-      }))
+      })),
+      retry({
+        count: 3,
+        delay: () => timer(1000)
+      })
     );
-    retry({ count: 3, delay: () => timer(1000) })
   }
 }

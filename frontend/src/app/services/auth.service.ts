@@ -19,7 +19,8 @@ export interface LoginResponse {
 export class AuthService {
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:5252/api/auth';
+  // Aynı sunucudaki API'ye göreceli adres
+  private apiUrl = '/api/auth';
 
   login(request: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(

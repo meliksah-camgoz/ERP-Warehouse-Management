@@ -1,4 +1,4 @@
-
+﻿
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -55,7 +55,7 @@ export class Stock implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
-  private apiUrl = 'http://localhost:5252/api';
+  private apiUrl = '/api';
 
   stocks: StockBalance[] = [];
   movements: StockMovement[] = [];
@@ -126,7 +126,7 @@ export class Stock implements OnInit {
         },
         error: err => {
           this.errorMessage =
-            err.error?.message ?? 'Stok listesi yüklenemedi.';
+            err.error?.message ?? 'Stok listesi yÃ¼klenemedi.';
           this.isLoading = false;
           this.cdr.detectChanges();
         }
@@ -141,7 +141,7 @@ export class Stock implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Ürün listesi yüklenemedi.';
+          this.errorMessage = 'ÃœrÃ¼n listesi yÃ¼klenemedi.';
           this.cdr.detectChanges();
         }
       });
@@ -155,7 +155,7 @@ export class Stock implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Depo listesi yüklenemedi.';
+          this.errorMessage = 'Depo listesi yÃ¼klenemedi.';
           this.cdr.detectChanges();
         }
       });
@@ -175,7 +175,7 @@ export class Stock implements OnInit {
         },
         error: err => {
           this.movementError =
-            err.error?.message ?? 'Stok hareketleri yüklenemedi.';
+            err.error?.message ?? 'Stok hareketleri yÃ¼klenemedi.';
           this.isLoadingMovements = false;
           this.cdr.detectChanges();
         }
@@ -205,7 +205,7 @@ export class Stock implements OnInit {
       !Number.isFinite(this.form.quantity) ||
       this.form.quantity <= 0
     ) {
-      this.errorMessage = 'Ürün, depo ve geçerli bir miktar seçmelisin.';
+      this.errorMessage = 'ÃœrÃ¼n, depo ve geÃ§erli bir miktar seÃ§melisin.';
       return;
     }
 
@@ -228,8 +228,8 @@ export class Stock implements OnInit {
         this.showForm = false;
         this.successMessage =
           this.operation === 'entry'
-            ? 'Stok girişi başarıyla kaydedildi.'
-            : 'Stok çıkışı başarıyla kaydedildi.';
+            ? 'Stok giriÅŸi baÅŸarÄ±yla kaydedildi.'
+            : 'Stok Ã§Ä±kÄ±ÅŸÄ± baÅŸarÄ±yla kaydedildi.';
 
         this.loadStocks();
         this.loadMovements();
@@ -239,9 +239,10 @@ export class Stock implements OnInit {
         this.isSaving = false;
         this.errorMessage =
           err.error?.message ??
-          'Stok işlemi sırasında bir hata oluştu.';
+          'Stok iÅŸlemi sÄ±rasÄ±nda bir hata oluÅŸtu.';
         this.cdr.detectChanges();
       }
     });
   }
 }
+

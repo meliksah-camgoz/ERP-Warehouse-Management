@@ -760,7 +760,7 @@ interface ProductForm {
 })
 export class Products implements OnInit {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5252/api';
+  private apiUrl = '/api';
   private cdr = inject(ChangeDetectorRef);
 
   products: Product[] = [];
@@ -1117,3 +1117,4 @@ export class Products implements OnInit {
     this.successMessage = '';
   }
 }
+

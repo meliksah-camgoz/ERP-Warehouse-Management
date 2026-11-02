@@ -1,4 +1,4 @@
-
+﻿
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -66,7 +66,7 @@ interface StockBalanceOption {
   styleUrl: './assets.css'
 })
 export class Assets implements OnInit {
-  private readonly apiUrl = 'http://localhost:5252/api/assets';
+  private readonly apiUrl = '/api/assets';
 
   assets: Asset[] = [];
   products: ProductOption[] = [];
@@ -82,7 +82,7 @@ export class Assets implements OnInit {
   errorMessage = '';
   successMessage = '';
   searchText = '';
-  statusFilter = 'Tümü';
+  statusFilter = 'TÃ¼mÃ¼';
   selectedFile: File | null = null;
 
   form: AssetForm = this.emptyForm();
@@ -109,7 +109,7 @@ export class Assets implements OnInit {
       assignedTo: '',
       department: '',
       location: '',
-      status: 'Kullanımda',
+      status: 'KullanÄ±mda',
       warrantyEndDate: '',
       description: ''
     };
@@ -128,7 +128,7 @@ export class Assets implements OnInit {
       },
       error: (error) => {
         this.errorMessage =
-          error.error?.message || 'Envanter kayıtları yüklenemedi. API çalışıyor mu?';
+          error.error?.message || 'Envanter kayÄ±tlarÄ± yÃ¼klenemedi. API Ã§alÄ±ÅŸÄ±yor mu?';
         this.loading = false;
         this.cdr.detectChanges();
       }
@@ -153,7 +153,7 @@ export class Assets implements OnInit {
       );
 
       const matchesStatus =
-        this.statusFilter === 'Tümü' || asset.status === this.statusFilter;
+        this.statusFilter === 'TÃ¼mÃ¼' || asset.status === this.statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -177,7 +177,7 @@ export class Assets implements OnInit {
       !this.form.brand.trim() ||
       !this.form.model.trim()
     ) {
-      this.errorMessage = 'Demirbaş numarası, cihaz türü, marka ve model zorunludur.';
+      this.errorMessage = 'DemirbaÅŸ numarasÄ±, cihaz tÃ¼rÃ¼, marka ve model zorunludur.';
       return;
     }
 
@@ -202,13 +202,13 @@ export class Assets implements OnInit {
       next: () => {
         this.saving = false;
         this.showForm = false;
-        this.successMessage = 'Envanter kaydı başarıyla oluşturuldu.';
+        this.successMessage = 'Envanter kaydÄ± baÅŸarÄ±yla oluÅŸturuldu.';
         this.loadAssets();
       },
       error: (error) => {
         this.saving = false;
         this.errorMessage =
-          error.error?.message || 'Kayıt oluşturulamadı.';
+          error.error?.message || 'KayÄ±t oluÅŸturulamadÄ±.';
         this.cdr.detectChanges();
       }
     });
@@ -221,7 +221,7 @@ export class Assets implements OnInit {
 
   importExcel(): void {
     if (!this.selectedFile) {
-      this.errorMessage = 'Önce bir Excel (.xlsx) dosyası seç.';
+      this.errorMessage = 'Ã–nce bir Excel (.xlsx) dosyasÄ± seÃ§.';
       return;
     }
 
@@ -234,55 +234,55 @@ export class Assets implements OnInit {
     this.http.post<any>(`${this.apiUrl}/import-excel`, data).subscribe({
       next: (result) => {
         this.successMessage =
-          result?.message || 'Excel içe aktarma işlemi tamamlandı.';
+          result?.message || 'Excel iÃ§e aktarma iÅŸlemi tamamlandÄ±.';
         this.selectedFile = null;
         this.loadAssets();
       },
       error: (error) => {
         this.errorMessage =
-          error.error?.message || 'Excel dosyası içe aktarılamadı.';
+          error.error?.message || 'Excel dosyasÄ± iÃ§e aktarÄ±lamadÄ±.';
         this.cdr.detectChanges();
       }
     });
   }
 
   loadProducts(): void {
-    this.http.get<ProductOption[]>('http://localhost:5252/api/products')
+    this.http.get<ProductOption[]>('/api/products')
       .subscribe({
         next: (data) => {
           this.products = (data ?? []).filter(p => p.isActive);
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Ürün listesi yüklenemedi.';
+          this.errorMessage = 'ÃœrÃ¼n listesi yÃ¼klenemedi.';
           this.cdr.detectChanges();
         }
       });
   }
 
   loadWarehouses(): void {
-    this.http.get<WarehouseOption[]>('http://localhost:5252/api/warehouses')
+    this.http.get<WarehouseOption[]>('/api/warehouses')
       .subscribe({
         next: (data) => {
           this.warehouses = (data ?? []).filter(w => w.isActive);
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Depo listesi yüklenemedi.';
+          this.errorMessage = 'Depo listesi yÃ¼klenemedi.';
           this.cdr.detectChanges();
         }
       });
   }
 
   loadStockBalances(): void {
-    this.http.get<StockBalanceOption[]>('http://localhost:5252/api/stock-balances')
+    this.http.get<StockBalanceOption[]>('/api/stock-balances')
       .subscribe({
         next: (data) => {
           this.stockBalances = data ?? [];
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Stok bilgileri yüklenemedi.';
+          this.errorMessage = 'Stok bilgileri yÃ¼klenemedi.';
           this.cdr.detectChanges();
         }
       });
@@ -310,13 +310,13 @@ export class Assets implements OnInit {
 
   get availableCount(): number {
     return this.assets.filter((a) =>
-      ['Stokta', 'Kullanılabilir', 'Boşta'].includes(a.status)
+      ['Stokta', 'KullanÄ±labilir', 'BoÅŸta'].includes(a.status)
     ).length;
   }
 
   get maintenanceCount(): number {
     return this.assets.filter((a) =>
-      ['Arızalı', 'Bakımda', 'Serviste'].includes(a.status)
+      ['ArÄ±zalÄ±', 'BakÄ±mda', 'Serviste'].includes(a.status)
     ).length;
   }
 
@@ -324,3 +324,4 @@ export class Assets implements OnInit {
     return asset.id;
   }
 }
+

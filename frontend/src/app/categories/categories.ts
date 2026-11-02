@@ -1,4 +1,4 @@
-
+﻿
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
@@ -28,7 +28,7 @@ export class Categories implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
-  private apiUrl = 'http://localhost:5252/api/categories';
+  private apiUrl = '/api/categories';
 
   categories: Category[] = [];
   searchTerm = '';
@@ -88,7 +88,7 @@ export class Categories implements OnInit {
       },
       error: error => {
         this.errorMessage =
-          error.error?.message ?? 'Kategoriler yüklenemedi.';
+          error.error?.message ?? 'Kategoriler yÃ¼klenemedi.';
         this.isLoading = false;
         this.cdr.detectChanges();
       }
@@ -125,7 +125,7 @@ export class Categories implements OnInit {
     const description = this.form.description.trim();
 
     if (name.length < 2) {
-      this.errorMessage = 'Kategori adı en az 2 karakter olmalıdır.';
+      this.errorMessage = 'Kategori adÄ± en az 2 karakter olmalÄ±dÄ±r.';
       return;
     }
 
@@ -157,8 +157,8 @@ export class Categories implements OnInit {
         this.isSaving = false;
         this.closeForm();
         this.successMessage = wasEditing
-          ? 'Kategori başarıyla güncellendi.'
-          : 'Kategori başarıyla oluşturuldu.';
+          ? 'Kategori baÅŸarÄ±yla gÃ¼ncellendi.'
+          : 'Kategori baÅŸarÄ±yla oluÅŸturuldu.';
         this.loadCategories();
       },
       error: error => {
@@ -187,12 +187,12 @@ export class Categories implements OnInit {
         { responseType: 'text' }
       ).subscribe({
         next: () => {
-          this.successMessage = 'Kategori pasif yapıldı.';
+          this.successMessage = 'Kategori pasif yapÄ±ldÄ±.';
           this.loadCategories();
         },
         error: error => {
           this.errorMessage =
-            error.error?.message ?? 'Kategori durumu değiştirilemedi.';
+            error.error?.message ?? 'Kategori durumu deÄŸiÅŸtirilemedi.';
           this.cdr.detectChanges();
         }
       });
@@ -201,6 +201,7 @@ export class Categories implements OnInit {
     }
 
     this.errorMessage =
-      'Kategori yeniden aktifleştirme işlemi mevcut API tarafından desteklenmiyor.';
+      'Kategori yeniden aktifleÅŸtirme iÅŸlemi mevcut API tarafÄ±ndan desteklenmiyor.';
   }
 }
+
